@@ -13,8 +13,8 @@ This application creates a TCP tunnel that allows clients to connect to a Tor hi
 
 1. Clone the repository:
     ```
-    git clone <repository-url>
-    cd <repository-name>
+    git clone https://github.com/KewbitXMR/tor-tunnels.git
+    cd tor-tunnels
     ```
 
 2. Add dependencies to your `Cargo.toml`:

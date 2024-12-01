@@ -1,0 +1,8 @@
+[package]
+name = "tor-tunnels"
+version = "0.1.1"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tokio-socks = "0.5"
