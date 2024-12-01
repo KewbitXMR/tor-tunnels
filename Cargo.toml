@@ -1,4 +1,9 @@
 [package]
+authors = ["Kewbit <me@kewbit.org>"]
+edition = "2021"
+description = "Create bindadle TCP tunnels to hidden services (.onion) over Tor"
+license = "MIT OR Apache-2.0"
+
 name = "tor-tunnels"
 version = "0.1.1"
 edition = "2021"
