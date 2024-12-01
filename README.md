@@ -59,4 +59,7 @@ You can adjust these values in the `main` function of `src/main.rs` as needed.
   - Bi-directional data transfer occurs between the client and the hidden service using `tokio::io::copy_bidirectional`.
 
 ## EXPERIMENTAL
-It's only useful for one perpose at the moment as I'm focusing on something else, currently you have to build it with the hidden service hardcoded, but in future it will be a library which you can create, destory tunnels in runtime, perhaps exposing an RPC API for other none rust applications too.
+It's only useful for one perpose at the moment as I'm focusing on something else, currently you have to build it with the hidden service hardcoded, but in future it will be a library which you can create, destroy tunnels in runtime, perhaps exposing an RPC API for other none rust applications too.
+
+## About
+Developed and maintainted by [Kewbit](https://kewbit.org) originally for use in the [haveno desktop client](https://haveno.com/documentation/installing-haveno-on-desktop/).
