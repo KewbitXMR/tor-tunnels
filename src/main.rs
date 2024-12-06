@@ -7,7 +7,7 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
     // Configuration parameters
     let listen_addr = "127.0.0.1:5656";
-    let socks5_proxy = "127.0.0.1:9050"; // Arti's SOCKS5 proxy
+    let socks5_proxy = "127.0.0.1:9066"; // Arti's SOCKS5 proxy
     let hidden_service_addr = "5i6blbmuflq4s4im6zby26a7g22oef6kyp7vbwyru6oq5e36akzo3ayd.onion:2001"; // Replace with your hidden service address and port
 
     // Bind the TCP listener

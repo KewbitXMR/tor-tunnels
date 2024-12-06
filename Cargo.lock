@@ -322,8 +322,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "tor-gprc-tunnel"
-version = "0.1.0"
+name = "tor-tunnels"
+version = "0.1.2"
 dependencies = [
  "tokio",
  "tokio-socks",
