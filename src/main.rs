@@ -1,50 +1,29 @@
-use tokio::net::{TcpListener, TcpStream};
-use tokio::io::copy_bidirectional;
-use tokio_socks::tcp::Socks5Stream;
-use std::error::Error;
+mod api;
+mod tunnel;
+mod state;
+
+use api::build_routes;
+use state::{load_state};
+use tunnel::{TunnelHandle, start_tunnel};
+
+use std::{collections::HashMap, net::SocketAddr, sync::Arc};
+use tokio::sync::Mutex;
+
+pub type TunnelMap = Arc<Mutex<HashMap<u16, TunnelHandle>>>;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    // Configuration parameters
-    let listen_addr = "127.0.0.1:5656";
-    let socks5_proxy = "127.0.0.1:9066"; // Arti's SOCKS5 proxy
-    let hidden_service_addr = "5i6blbmuflq4s4im6zby26a7g22oef6kyp7vbwyru6oq5e36akzo3ayd.onion:2001"; // Replace with your hidden service address and port
+async fn main() {
+    let socks_proxy = "127.0.0.1:9066".to_string();
+    let api_addr: SocketAddr = "127.0.0.1:8080".parse().unwrap();
 
-    // Bind the TCP listener
-    let listener = TcpListener::bind(listen_addr).await?;
-    println!("Tunnel is listening on {}", listen_addr);
+    let map: TunnelMap = Arc::new(Mutex::new(HashMap::new()));
 
-    loop {
-        // Accept incoming connections
-        let (client_stream, client_addr) = listener.accept().await?;
-        println!("Accepted connection from {}", client_addr);
-
-        // Clone variables for the async block
-        let hidden_service_addr = hidden_service_addr.to_string();
-        let socks5_proxy = socks5_proxy.to_string();
-
-        // Handle the client connection asynchronously
-        tokio::spawn(async move {
-            if let Err(e) = handle_client(client_stream, &socks5_proxy, &hidden_service_addr).await {
-                eprintln!("Error handling client {}: {:?}", client_addr, e);
-            }
-        });
+    for info in load_state().await {
+        let h = start_tunnel(info.clone(), socks_proxy.clone()).await;
+        map.lock().await.insert(info.port, TunnelHandle { info, handle: h });
     }
-}
 
-// Function to handle client connections
-async fn handle_client(
-    mut client_stream: TcpStream,
-    socks5_proxy: &str,
-    hidden_service_addr: &str,
-) -> Result<(), Box<dyn Error>> {
-    // Connect to the hidden service via the SOCKS5 proxy
-    let mut remote_stream = Socks5Stream::connect(socks5_proxy, hidden_service_addr).await?.into_inner();
-    println!("Connected to hidden service at {}", hidden_service_addr);
-
-    // Bi-directional data transfer between client and hidden service
-    copy_bidirectional(&mut client_stream, &mut remote_stream).await?;
-
-    println!("Connection to {} closed", hidden_service_addr);
-    Ok(())
+    let routes = build_routes(map.clone(), socks_proxy.clone());
+    println!("API listening on http://{}/", api_addr);
+    warp::serve(routes).run(api_addr).await;
 }

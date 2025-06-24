@@ -8,5 +8,14 @@ version = "0.1.2"
 repository = "https://git.haveno.com/haveno/packages/tor-tunnels"
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.36", features = ["full"] }
 tokio-socks = "0.5"
+warp = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
