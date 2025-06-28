@@ -1,10 +1,35 @@
-
 use crate::{TunnelMap, TunnelHandle};
 use crate::tunnel::{start_tunnel, TunnelInfo};
 use crate::state::save_state;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use warp::{http::StatusCode, Filter, Rejection, Reply};
+use warp::reply; // ✅ Required for reply::with_status and reply::json
+
+#[derive(Serialize)]
+struct ErrorMessage {
+    error: String,
+}
+
+enum TunnelResponse {
+    NoContent,
+    NotFound(String),
+}
+
+impl Reply for TunnelResponse {
+    fn into_response(self) -> warp::reply::Response {
+        match self {
+            TunnelResponse::NoContent => {
+                // Return empty body with 204 No Content
+                reply::with_status(reply::reply(), StatusCode::NO_CONTENT).into_response()
+            },
+            TunnelResponse::NotFound(msg) => {
+                let json = reply::json(&ErrorMessage { error: msg });
+                reply::with_status(json, StatusCode::NOT_FOUND).into_response()
+            }
+        }
+    }
+}
 
 pub fn build_routes(map: TunnelMap, socks_proxy: String) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     let map_filter = warp::any().map(move || map.clone());
@@ -70,12 +95,21 @@ async fn list_tunnels(map: TunnelMap) -> Result<impl Reply, Rejection> {
 }
 
 async fn destroy_tunnel(port: u16, map: TunnelMap) -> Result<impl Reply, Rejection> {
-    if let Some(h) = map.lock().await.remove(&port) {
+    // Scope 1: remove the tunnel while locked
+    let maybe_handle = {
+        let mut lock = map.lock().await;
+        lock.remove(&port)
+    };
+
+    if let Some(h) = maybe_handle {
         h.handle.abort();
+
+        // Scope 2: save state after the lock has been released
         save_state(&map).await;
+
         println!("[port {}] Tunnel destroyed", port);
-        Ok(warp::reply::with_status("Deleted", StatusCode::NO_CONTENT))
+        Ok(TunnelResponse::NoContent)
     } else {
-        Ok(warp::reply::with_status("Not found", StatusCode::NOT_FOUND))
+        Ok(TunnelResponse::NotFound("Tunnel not found".into()))
     }
 }
