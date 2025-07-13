@@ -1,11 +1,11 @@
 [package]
-authors = ["Kewbit <me@kewbit.org>"]
+authors = ["Kewbit <kewbitxmr@protonmail.com>"]
 edition = "2021"
 description = "Create bindadle TCP tunnels to hidden services (.onion) over Tor"
 license = "Apache-2.0"
 name = "tor-tunnels"
-version = "1.2.0"
-repository = "https://git.haveno.com/haveno/packages/tor-tunnels"
+version = "1.2.1"
+repository = "https://github.com/KewbitXMR/tor-tunnels/"
 
 [dependencies]
 tokio = { version = "1.36", features = ["full"] }
