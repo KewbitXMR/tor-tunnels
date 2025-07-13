@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "port": 5000,
+    "onion": "bcsls7qvgikjzjpmbnr7oqmayp7b4ccujz2lvb6ld2q5rxoej6jj2lad.onion:22"
+  }
+]

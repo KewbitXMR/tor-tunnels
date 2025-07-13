@@ -4,7 +4,7 @@ edition = "2021"
 description = "Create bindadle TCP tunnels to hidden services (.onion) over Tor"
 license = "Apache-2.0"
 name = "tor-tunnels"
-version = "0.1.2"
+version = "1.2.0"
 repository = "https://git.haveno.com/haveno/packages/tor-tunnels"
 
 [dependencies]

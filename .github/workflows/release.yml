@@ -17,6 +17,8 @@ jobs:
           - aarch64-apple-darwin
           - x86_64-apple-darwin
           - x86_64-pc-windows-gnu
+          - aarch64-linux-android
+          - armv7-linux-androideabi
 
     steps:
       - uses: actions/checkout@v4
@@ -28,28 +30,63 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      - name: Install Zig (for cross-compilation)
+      - name: Install Zig
+        if: ${{ !contains(matrix.target, 'android') }}
         uses: goto-bus-stop/setup-zig@v2
 
       - name: Install cargo-zigbuild
+        if: ${{ !contains(matrix.target, 'android') }}
         run: cargo install cargo-zigbuild
 
-      - name: Build binary
+      - name: Build native binary
+        if: ${{ !contains(matrix.target, 'android') }}
         run: cargo zigbuild --release --target ${{ matrix.target }}
+
+      # === ANDROID SETUP ===
+
+      - name: Install Android NDK
+        if: ${{ contains(matrix.target, 'android') }}
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r26d
+          link-to-sdk: true
+
+      - name: Install cargo-ndk
+        if: ${{ contains(matrix.target, 'android') }}
+        run: cargo install cargo-ndk
+
+      - name: Build Android binary
+        if: ${{ contains(matrix.target, 'android') }}
+        run: |
+          arch=""
+          if [[ "${{ matrix.target }}" == "aarch64-linux-android" ]]; then
+            arch="arm64-v8a"
+          elif [[ "${{ matrix.target }}" == "armv7-linux-androideabi" ]]; then
+            arch="armeabi-v7a"
+          fi
+          cargo ndk -t "$arch" -o ./android-build build --release
+        shell: bash
+
+      # === PACKAGE OUTPUT ===
 
       - name: Package binary
         run: |
-          mkdir output
-          cd target/${{ matrix.target }}/release
-          bin_name=$(basename $(find . -maxdepth 1 -type f -perm -u+x | head -n 1))
-          cp "$bin_name" "../../../output/${{ matrix.target }}-$bin_name"
+          mkdir -p output
+          if [[ "${{ matrix.target }}" == *"android"* ]]; then
+            bin_name=$(basename ./android-build/*)
+            cp ./android-build/* ./output/tor-tunnel-${{ matrix.target }}
+          else
+            cd target/${{ matrix.target }}/release
+            bin_name=$(basename $(find . -maxdepth 1 -type f -perm -u+x | head -n 1))
+            cp "$bin_name" "../../../../output/tor-tunnel-${{ matrix.target }}"
+          fi
         shell: bash
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}-binary
           path: output/*
-  
+
   release:
     name: Create GitHub Release
     needs: build
@@ -63,16 +100,9 @@ jobs:
         with:
           path: dist/
 
-      - name: Zip artifacts
-        run: |
-          cd dist
-          for dir in */ ; do
-            zip -r "${dir%/}.zip" "$dir"
-          done
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.zip
+          files: dist/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

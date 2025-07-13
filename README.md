@@ -17,14 +17,7 @@ This application creates a TCP tunnel that allows clients to connect to a Tor hi
     cd tor-tunnels
     ```
 
-2. Add dependencies to your `Cargo.toml`:
-    ```toml
-    [dependencies]
-    tokio = { version = "1", features = ["full"] }
-    tokio-socks = "0.1.4"
-    ```
-
-3. Build the project:
+2. Build the project:
     ```
     cargo build --release
     ```
@@ -35,7 +28,7 @@ Before running the application, you need to configure the following parameters:
 
 - `listen_addr`: The local address and port the tunnel will listen on for incoming connections (e.g., `127.0.0.1:5656`).
 - `socks5_proxy`: The SOCKS5 proxy address to use for connecting to the Tor network (e.g., `127.0.0.1:9050` for a local Tor proxy).
-- `hidden_service_addr`: The address and port of the hidden service you want to tunnel to (e.g., `5i6blbmuflq4s4im6zby26a7g22oef6kyp7vbwyru6oq5e36akzo3ayd.onion:2001`).
+- `hidden_service_addr`: The address and port of the hidden service you want to tunnel to (e.g., `anyonionaddresswillworkhere.onion:2001`).
 
 You can adjust these values in the `main` function of `src/main.rs` as needed.
 
@@ -58,8 +51,8 @@ You can adjust these values in the `main` function of `src/main.rs` as needed.
   - A connection to the hidden service is established via the provided SOCKS5 proxy using `Socks5Stream::connect`.
   - Bi-directional data transfer occurs between the client and the hidden service using `tokio::io::copy_bidirectional`.
 
-## EXPERIMENTAL
-It's only useful for one perpose at the moment as I'm focusing on something else, currently you have to build it with the hidden service hardcoded, but in future it will be a library which you can create, destroy tunnels in runtime, perhaps exposing an RPC API for other none rust applications too.
+## Rest API
+You can use the endpoints `spawn`, `list` and `destroy` to manage tunnels through the listening address specified in a RESTful design. 
 
 ## About
 Developed and maintainted by [Kewbit](https://kewbit.org) originally for use in the [haveno desktop client](https://haveno.com/documentation/installing-haveno-on-desktop/).

@@ -1,4 +1,3 @@
-// src/state.rs
 use crate::tunnel::TunnelInfo;
 use crate::TunnelMap;
 use std::fs;
@@ -11,6 +10,7 @@ pub async fn load_state() -> Vec<TunnelInfo> {
         Err(_) => Vec::new(),
     }
 }
+
 
 pub async fn save_state(map: &TunnelMap) {
     let infos: Vec<_> = map

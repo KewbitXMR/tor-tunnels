@@ -1,0 +1,7 @@
+{
+  "default": {
+    "listen_addr": "127.0.0.1:8080",
+    "socks5_proxy_host": "127.0.0.1",
+    "socks5_proxy_port": 9066
+  }
+}
