@@ -64,7 +64,7 @@ jobs:
           elif [[ "${{ matrix.target }}" == "armv7-linux-androideabi" ]]; then
             arch="armeabi-v7a"
           fi
-          cargo build --release --target ${{ matrix.target }}
+          cargo ndk -t ${{ matrix.target }} -o ./android-build build --release
         shell: bash
 
       # === PACKAGE OUTPUT ===
