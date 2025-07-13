@@ -64,7 +64,7 @@ jobs:
           elif [[ "${{ matrix.target }}" == "armv7-linux-androideabi" ]]; then
             arch="armeabi-v7a"
           fi
-          cargo ndk -t "$arch" -o ./android-build build --release
+          cargo build --release --target ${{ matrix.target }}
         shell: bash
 
       # === PACKAGE OUTPUT ===
@@ -72,14 +72,9 @@ jobs:
       - name: Package binary
         run: |
           mkdir -p output
-          if [[ "${{ matrix.target }}" == *"android"* ]]; then
-            bin_name=$(basename ./android-build/*)
-            cp ./android-build/* ./output/tor-tunnel-${{ matrix.target }}
-          else
-            cd target/${{ matrix.target }}/release
-            bin_name=$(basename $(find . -maxdepth 1 -type f -perm -u+x | head -n 1))
-            cp "$bin_name" "../../../../output/tor-tunnel-${{ matrix.target }}"
-          fi
+          cd target/${{ matrix.target }}/release
+          bin_name=$(basename $(find . -maxdepth 1 -type f -perm -u+x | head -n 1))
+          cp "$bin_name" "../../../../output/tor-tunnel-${{ matrix.target }}"
         shell: bash
 
       - uses: actions/upload-artifact@v4

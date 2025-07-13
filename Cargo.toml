@@ -5,7 +5,7 @@ description = "Create bindadle TCP tunnels to hidden services (.onion) over Tor"
 license = "Apache-2.0"
 name = "tor-tunnels"
 version = "1.2.1"
-repository = "https://github.com/KewbitXMR/tor-tunnels/"
+repository = "https://github.com/KewbitXMR/tor-tunnels.git"
 
 [dependencies]
 tokio = { version = "1.36", features = ["full"] }
@@ -19,3 +19,7 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
+
+[[bin]]
+name = "tor-tunnels"
+path = "src/main.rs"
